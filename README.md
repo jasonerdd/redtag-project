@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Red Tag System
 
 Django web app that replaces the Assembly Red Tag Report Excel workbook. Capture, store, search, close, and export red tag records on a local server with PostgreSQL.
@@ -80,3 +81,6 @@ On the company server:
 | Status (P/C) | status |
 | Closing Date / Cleared By | closing_date / verified_by |
 | Location (EOL/FINAL) | location |
+=======
+# redtag-project
+>>>>>>> 54586409c90b7624187bc6d4303db7b09377ad29
