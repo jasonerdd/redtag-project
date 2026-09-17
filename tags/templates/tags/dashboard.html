@@ -1,0 +1,122 @@
+{% extends 'tags/base.html' %}
+{% block title %}Dashboard · Red Tag System{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub mb-0">Live overview of assembly red tags</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'redtag-create' %}" class="btn btn-danger">New Red Tag</a>
+    <a href="{% url 'redtag-list' %}" class="btn btn-outline-secondary">View all</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card total">
+      <div class="label">Total tags</div>
+      <div class="value">{{ total }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card pending">
+      <div class="label">Pending (P)</div>
+      <div class="value">{{ open_count }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card closed">
+      <div class="label">Closed (C)</div>
+      <div class="value">{{ closed_count }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-4">
+    <div class="panel h-100">
+      <h2 class="h6 mb-3">By section</h2>
+      <ul class="list-group list-group-flush">
+        {% for row in by_section %}
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span>{{ row.section__code|default:'—' }}</span>
+            <strong>{{ row.count }}</strong>
+          </li>
+        {% empty %}
+          <li class="list-group-item px-0 text-muted">No data yet</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="panel h-100">
+      <h2 class="h6 mb-3">Top issue types</h2>
+      <ul class="list-group list-group-flush">
+        {% for row in top_issue_types %}
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span>{{ row.issue_type__name|default:'—' }}</span>
+            <strong>{{ row.count }}</strong>
+          </li>
+        {% empty %}
+          <li class="list-group-item px-0 text-muted">No data yet</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="panel h-100">
+      <h2 class="h6 mb-3">Top stations</h2>
+      <ul class="list-group list-group-flush">
+        {% for row in by_station %}
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span>{{ row.station__name|default:'—' }}</span>
+            <strong>{{ row.count }}</strong>
+          </li>
+        {% empty %}
+          <li class="list-group-item px-0 text-muted">No data yet</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h6 mb-0">Recent tags</h2>
+    <a href="{% url 'redtag-list' %}" class="small">See all</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Chassis</th>
+          <th>Section</th>
+          <th>Issue</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tag in recent_tags %}
+        <tr>
+          <td>{{ tag.date_raised }}</td>
+          <td><a href="{% url 'redtag-detail' tag.pk %}">{{ tag.vehicle.chassis_no }}</a></td>
+          <td>{{ tag.section.code }}</td>
+          <td>{{ tag.issue_description|truncatechars:60 }}</td>
+          <td>
+            {% if tag.status == 'P' %}
+              <span class="badge badge-pending">Pending</span>
+            {% else %}
+              <span class="badge badge-closed">Closed</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-muted">No red tags yet. Create one or import the Excel report.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

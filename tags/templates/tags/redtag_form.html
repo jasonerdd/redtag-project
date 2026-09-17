@@ -1,0 +1,263 @@
+{% extends 'tags/base.html' %}
+{% block title %}{% if object %}Edit{% else %}New{% endif %} Red Tag · Red Tag System{% endblock %}
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+  .ts-wrapper.form-select .ts-control {
+    padding: 0.375rem 0.75rem;
+    min-height: calc(1.5em + 0.75rem + 2px);
+  }
+  .ts-wrapper .ts-control .item {
+    color: var(--rt-ink, #1f2937);
+  }
+  .ts-wrapper .ts-control input::placeholder,
+  .ts-wrapper.single.input-active .ts-control .item {
+    color: #9ca3af;
+  }
+  .ts-wrapper .ts-control input {
+    color: #1f2937;
+  }
+  .ts-dropdown .option {
+    padding: 0.4rem 0.75rem;
+  }
+  .ts-dropdown .option[data-value=""] {
+    display: none;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="mb-3">
+  <h1 class="page-title">{% if object %}Edit red tag #{{ object.pk }}{% else %}New red tag{% endif %}</h1>
+  <p class="page-sub">Enter red tag data. Required fields are marked. Type in any dropdown to filter options.</p>
+</div>
+
+<div class="panel">
+  <form method="post" novalidate id="redtag-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.date_raised.id_for_label }}">Date <span class="text-danger">*</span></label>
+        {{ form.date_raised }}
+        {{ form.date_raised.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.section.id_for_label }}">Section <span class="text-danger">*</span></label>
+        {{ form.section }}
+        {{ form.section.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.model.id_for_label }}">Model <span class="text-danger">*</span></label>
+        {{ form.model }}
+        {{ form.model.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.lot.id_for_label }}">Lot Number <span class="text-danger">*</span></label>
+        {{ form.lot }}
+        {{ form.lot.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.chassis_no.id_for_label }}">Chassis No. <span class="text-danger">*</span></label>
+        {{ form.chassis_no }}
+        {{ form.chassis_no.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.quantity.id_for_label }}">Quantity <span class="text-danger">*</span></label>
+        {{ form.quantity }}
+        {{ form.quantity.errors }}
+      </div>
+      <div class="col-12">
+        <label class="form-label" for="{{ form.issue_description.id_for_label }}">Issue Description <span class="text-danger">*</span></label>
+        {{ form.issue_description }}
+        {{ form.issue_description.errors }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="{{ form.category.id_for_label }}">Category <span class="text-danger">*</span></label>
+        {{ form.category }}
+        {{ form.category.errors }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="{{ form.issue_type.id_for_label }}">Issue Type <span class="text-danger">*</span></label>
+        {{ form.issue_type }}
+        {{ form.issue_type.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.raised_by_employee_no.id_for_label }}">Raised By Staff ID <span class="text-danger">*</span></label>
+        {{ form.raised_by_employee_no }}
+        {{ form.raised_by_employee_no.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.station.id_for_label }}">Station <span class="text-danger">*</span></label>
+        {{ form.station }}
+        {{ form.station.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.status.id_for_label }}">Status <span class="text-danger">*</span></label>
+        {{ form.status }}
+        {{ form.status.errors }}
+      </div>
+    </div>
+
+    <div id="closed-fields" class="row g-3 mb-4" hidden>
+      <div class="col-12">
+        <h2 class="h6 text-uppercase text-muted mb-0">Closing details</h2>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.closing_date.id_for_label }}">Closing Date <span class="text-danger">*</span></label>
+        {{ form.closing_date }}
+        {{ form.closing_date.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.verified_by_employee_no.id_for_label }}">Closed By Staff ID <span class="text-danger">*</span></label>
+        {{ form.verified_by_employee_no }}
+        {{ form.verified_by_employee_no.errors }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="{{ form.remarks.id_for_label }}">Remarks <span class="text-danger">*</span></label>
+        {{ form.remarks }}
+        {{ form.remarks.errors }}
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-danger">Save Red Tag</button>
+      <a href="{% url 'redtag-list' %}" class="btn btn-outline-secondary">View Red Tags</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+<script>
+  const categorySelect = document.getElementById('id_category');
+  const issueTypeSelect = document.getElementById('id_issue_type');
+  const sectionSelect = document.getElementById('id_section');
+  const stationSelect = document.getElementById('id_station');
+  const statusSelect = document.getElementById('id_status');
+  const modelSelect = document.getElementById('id_model');
+  const closedFields = document.getElementById('closed-fields');
+  const initialIssueTypeId = {% if form.issue_type.value %}"{{ form.issue_type.value }}"{% else %}null{% endif %};
+  const initialStationId = {% if form.station.value %}"{{ form.station.value }}"{% else %}null{% endif %};
+  const PLACEHOLDER = 'Select an option';
+
+  function enhanceSelect(selectEl) {
+    if (!selectEl) return null;
+    if (selectEl.tomselect) return selectEl.tomselect;
+
+    // Ensure blank option exists so the field can start unselected
+    if (![...selectEl.options].some(opt => opt.value === '')) {
+      selectEl.insertBefore(new Option(PLACEHOLDER, '', true, true), selectEl.firstChild);
+    } else {
+      const blank = [...selectEl.options].find(opt => opt.value === '');
+      if (blank) blank.textContent = PLACEHOLDER;
+    }
+
+    // Keep blank selected unless a real value was chosen (edit / validation redisplay)
+    const selectedReal = [...selectEl.options].find(opt => opt.selected && opt.value !== '');
+    if (!selectedReal) {
+      selectEl.value = '';
+    }
+
+    return new TomSelect(selectEl, {
+      create: false,
+      maxOptions: null,
+      sortField: { field: 'text', direction: 'asc' },
+      placeholder: PLACEHOLDER,
+      allowEmptyOption: true,
+      hideSelected: false,
+      searchField: ['text'],
+      render: {
+        option: function(data, escape) {
+          if (data.value === '') {
+            return '<div class="option" style="display:none"></div>';
+          }
+          return '<div class="option">' + escape(data.text) + '</div>';
+        },
+        item: function(data, escape) {
+          if (data.value === '') {
+            return '<div class="item" style="color:#9ca3af;">' + escape(PLACEHOLDER) + '</div>';
+          }
+          return '<div class="item">' + escape(data.text) + '</div>';
+        },
+        no_results: function() {
+          return '<div class="no-results">No matches</div>';
+        },
+      },
+    });
+  }
+
+  function setSelectOptions(selectEl, items, selectedId) {
+    const ts = selectEl.tomselect || enhanceSelect(selectEl);
+    ts.clear(true);
+    ts.clearOptions();
+    ts.addOption({ value: '', text: PLACEHOLDER });
+    items.forEach(item => {
+      ts.addOption({ value: String(item.id), text: item.name });
+    });
+    ts.refreshOptions(false);
+    if (selectedId) {
+      ts.setValue(String(selectedId), true);
+    } else {
+      ts.setValue('', true);
+    }
+  }
+
+  const sectionTs = enhanceSelect(sectionSelect);
+  const modelTs = enhanceSelect(modelSelect);
+  const categoryTs = enhanceSelect(categorySelect);
+  const issueTypeTs = enhanceSelect(issueTypeSelect);
+  const stationTs = enhanceSelect(stationSelect);
+  const statusTs = enhanceSelect(statusSelect);
+
+  async function loadIssueTypes(categoryId, selectedId) {
+    if (!categoryId) {
+      setSelectOptions(issueTypeSelect, [], null);
+      return;
+    }
+    const response = await fetch(`/ajax/load-issue-types/?category_id=${categoryId}`);
+    const data = await response.json();
+    setSelectOptions(issueTypeSelect, data, selectedId);
+  }
+
+  async function loadStations(sectionId, selectedId) {
+    if (!sectionId) {
+      setSelectOptions(stationSelect, [], null);
+      return;
+    }
+    const response = await fetch(`/ajax/load-stations/?section_id=${sectionId}`);
+    const data = await response.json();
+    setSelectOptions(stationSelect, data, selectedId);
+  }
+
+  function toggleClosedFields() {
+    const value = statusSelect.tomselect ? statusSelect.tomselect.getValue() : statusSelect.value;
+    const isClosed = value === 'C';
+    closedFields.hidden = !isClosed;
+    ['id_closing_date', 'id_verified_by_employee_no', 'id_remarks'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.required = isClosed;
+    });
+  }
+
+  if (categoryTs) {
+    categoryTs.on('change', (value) => loadIssueTypes(value, null));
+    if (categorySelect.value) {
+      loadIssueTypes(categorySelect.value, initialIssueTypeId);
+    }
+  }
+  if (sectionTs) {
+    sectionTs.on('change', (value) => loadStations(value, null));
+    if (sectionSelect.value) {
+      loadStations(sectionSelect.value, initialStationId);
+    }
+  }
+  if (statusTs) {
+    statusTs.on('change', toggleClosedFields);
+    toggleClosedFields();
+  }
+</script>
+{% endblock %}

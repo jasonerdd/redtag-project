@@ -1,0 +1,92 @@
+{% extends 'tags/base.html' %}
+{% block title %}Red Tag #{{ redtag.pk }} · Red Tag System{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+  <div>
+    <h1 class="page-title">Red Tag #{{ redtag.pk }}</h1>
+    <p class="page-sub mb-0">
+      {{ redtag.vehicle.chassis_no }} · {{ redtag.vehicle.model.name }}
+      {% if redtag.status == 'P' %}
+        <span class="badge badge-pending ms-2">Pending</span>
+      {% else %}
+        <span class="badge badge-closed ms-2">Closed</span>
+      {% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'redtag-update' redtag.pk %}" class="btn btn-dark">Edit</a>
+    <a href="{% url 'redtag-list' %}" class="btn btn-outline-secondary">Back to list</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="panel mb-3">
+      <h2 class="h6 text-uppercase text-muted mb-3">Issue details</h2>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Date raised</dt><dd class="col-sm-8">{{ redtag.date_raised }}</dd>
+        <dt class="col-sm-4">Section</dt><dd class="col-sm-8">{{ redtag.section.code }}</dd>
+        <dt class="col-sm-4">Station</dt><dd class="col-sm-8">{{ redtag.station.name|default:'—' }}</dd>
+        <dt class="col-sm-4">Location</dt><dd class="col-sm-8">{{ redtag.get_location_display|default:redtag.location|default:'—' }}</dd>
+        <dt class="col-sm-4">Part number</dt><dd class="col-sm-8">{{ redtag.part_number|default:'—' }}</dd>
+        <dt class="col-sm-4">Part name</dt><dd class="col-sm-8">{{ redtag.part_name|default:'—' }}</dd>
+        <dt class="col-sm-4">Quantity</dt><dd class="col-sm-8">{{ redtag.quantity|default:'—' }}</dd>
+        <dt class="col-sm-4">Description</dt><dd class="col-sm-8">{{ redtag.issue_description }}</dd>
+        <dt class="col-sm-4">Category</dt><dd class="col-sm-8">{{ redtag.category.name|default:'—' }}</dd>
+        <dt class="col-sm-4">Issue type</dt><dd class="col-sm-8">{{ redtag.issue_type.name|default:'—' }}</dd>
+        <dt class="col-sm-4">Reason code</dt><dd class="col-sm-8">{{ redtag.reason_code|default:'—' }}</dd>
+        <dt class="col-sm-4">Action</dt><dd class="col-sm-8">{{ redtag.action_taken|default:'—' }}</dd>
+        <dt class="col-sm-4">Remarks</dt><dd class="col-sm-8">{{ redtag.remarks|default:'—' }}</dd>
+      </dl>
+    </div>
+
+    <div class="panel">
+      <h2 class="h6 text-uppercase text-muted mb-3">Vehicle</h2>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Chassis no.</dt><dd class="col-sm-8">{{ redtag.vehicle.chassis_no }}</dd>
+        <dt class="col-sm-4">Model</dt><dd class="col-sm-8">{{ redtag.vehicle.model.name }}</dd>
+        <dt class="col-sm-4">Dealer</dt><dd class="col-sm-8">{{ redtag.vehicle.dealer.name|default:'—' }}</dd>
+        <dt class="col-sm-4">Lot</dt><dd class="col-sm-8">{{ redtag.vehicle.lot|default:'—' }}</dd>
+        <dt class="col-sm-4">VIN size</dt><dd class="col-sm-8">{{ redtag.vehicle.vi_size|default:'—' }}</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="panel mb-3">
+      <h2 class="h6 text-uppercase text-muted mb-3">People</h2>
+      <dl class="row mb-0">
+        <dt class="col-5">Raised by</dt>
+        <dd class="col-7">{{ redtag.raised_by|default:'—' }}</dd>
+        <dt class="col-5">Verified by</dt>
+        <dd class="col-7">{{ redtag.verified_by|default:'—' }}</dd>
+        <dt class="col-5">Closing date</dt>
+        <dd class="col-7">{{ redtag.closing_date|default:'—' }}</dd>
+      </dl>
+    </div>
+
+    {% if redtag.status == 'P' %}
+    <div class="panel">
+      <h2 class="h6 text-uppercase text-muted mb-3">Close this tag</h2>
+      <form method="post" action="{% url 'redtag-close' redtag.pk %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label" for="verified_by">Cleared / Verified by</label>
+          <select name="verified_by" id="verified_by" class="form-select" required>
+            <option value="">Select employee</option>
+            {% for emp in employees %}
+              <option value="{{ emp.id }}">{{ emp.full_name }} ({{ emp.employee_no }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="remarks">Remarks</label>
+          <input type="text" name="remarks" id="remarks" class="form-control" value="{{ redtag.remarks }}">
+        </div>
+        <button type="submit" class="btn btn-success w-100">Mark as Closed</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
