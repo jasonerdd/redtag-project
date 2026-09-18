@@ -47,10 +47,10 @@
       font-weight: 700;
       line-height: 1.2;
     }
-    .stat-card.pending .value { color: #b45309; }
+    .stat-card.pending .value { color: #f31212; }
     .stat-card.closed .value { color: #047857; }
     .stat-card.total .value { color: var(--rt-red); }
-    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-pending { background: #fef3c7; color: #c65f5f; }
     .badge-closed { background: #d1fae5; color: #065f46; }
     .table thead th {
       font-size: 0.8rem;
@@ -90,7 +90,8 @@
         {% if user.is_authenticated %}
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="{% url 'redtag-create' %}">New Red Tag</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'redtag-list' %}">Red Tags</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'redtag-list' %}">Red Tag History</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'audit-list' %}">Audit Trail</a></li>
           {% if user.is_staff %}
           <li class="nav-item"><a class="nav-link" href="/admin/">Admin</a></li>
           {% endif %}

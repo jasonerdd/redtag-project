@@ -1,10 +1,35 @@
 {% extends 'tags/base.html' %}
 {% block title %}Red Tags · Red Tag System{% endblock %}
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+  .ts-wrapper.form-select .ts-control {
+    padding: 0.375rem 0.75rem;
+    min-height: calc(1.5em + 0.75rem + 2px);
+  }
+  .ts-wrapper .ts-control .item {
+    color: var(--rt-ink, #1f2937);
+  }
+  .ts-wrapper .ts-control input::placeholder,
+  .ts-wrapper.single.input-active .ts-control .item {
+    color: #9ca3af;
+  }
+  .ts-wrapper .ts-control input {
+    color: #1f2937;
+  }
+  .ts-dropdown .option {
+    padding: 0.4rem 0.75rem;
+  }
+  .ts-dropdown .option[data-value=""] {
+    display: none;
+  }
+</style>
+{% endblock %}
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
   <div>
-    <h1 class="page-title">Red Tags</h1>
-    <p class="page-sub mb-0">Search, filter, and manage assembly issues</p>
+    <h1 class="page-title">Red Tag History</h1>
+    <p class="page-sub mb-0">Units with red tags — open a unit to see all its issues</p>
   </div>
   <div class="d-flex gap-2">
     <a class="btn btn-outline-secondary" href="{% url 'redtag-export' %}?{{ request.GET.urlencode }}">Export Excel</a>
@@ -15,32 +40,32 @@
 <div class="panel mb-3">
   <form method="get" class="row g-2 align-items-end">
     <div class="col-md-2">
-      <label class="form-label">Status</label>
+      <label class="form-label" for="{{ filter_form.status.id_for_label }}">Status</label>
       {{ filter_form.status }}
     </div>
     <div class="col-md-2">
-      <label class="form-label">Section</label>
+      <label class="form-label" for="{{ filter_form.section.id_for_label }}">Section</label>
       {{ filter_form.section }}
     </div>
     <div class="col-md-2">
-      <label class="form-label">Model</label>
+      <label class="form-label" for="{{ filter_form.model.id_for_label }}">Model</label>
       {{ filter_form.model }}
     </div>
     <div class="col-md-2">
-      <label class="form-label">Chassis</label>
+      <label class="form-label" for="{{ filter_form.chassis.id_for_label }}">Chassis</label>
       {{ filter_form.chassis }}
     </div>
     <div class="col-md-2">
-      <label class="form-label">From</label>
+      <label class="form-label" for="{{ filter_form.date_from.id_for_label }}">From</label>
       {{ filter_form.date_from }}
     </div>
     <div class="col-md-2">
-      <label class="form-label">To</label>
+      <label class="form-label" for="{{ filter_form.date_to.id_for_label }}">To</label>
       {{ filter_form.date_to }}
     </div>
     <div class="col-md-6">
       <label class="form-label">Search</label>
-      <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Description, part, chassis...">
+      <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Chassis, model, lot, issue...">
     </div>
     <div class="col-md-6 d-flex gap-2">
       <button class="btn btn-dark" type="submit">Apply filters</button>
@@ -54,43 +79,50 @@
     <table class="table table-hover align-middle mb-0">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Date</th>
-          <th>Chassis</th>
+          <th>Chassis No.</th>
           <th>Model</th>
-          <th>Section</th>
-          <th>Station</th>
-          <th>Category</th>
-          <th>Issue</th>
-          <th>Status</th>
+          <th>Lot</th>
+          <th>Dealer</th>
+          <th>Issues</th>
+          <th>Pending</th>
+          <th>Closed</th>
+          <th>Latest tag</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        {% for tag in redtags %}
+        {% for unit in units %}
         <tr>
-          <td>{{ tag.id }}</td>
-          <td>{{ tag.date_raised }}</td>
-          <td>{{ tag.vehicle.chassis_no }}</td>
-          <td>{{ tag.vehicle.model.name }}</td>
-          <td>{{ tag.section.code }}</td>
-          <td>{{ tag.station.name|default:'—' }}</td>
-          <td>{{ tag.category.name|default:'—' }}</td>
-          <td>{{ tag.issue_description|truncatechars:50 }}</td>
           <td>
-            {% if tag.status == 'P' %}
-              <span class="badge badge-pending">P</span>
+            <a href="{% url 'vehicle-detail' unit.pk %}" class="fw-semibold text-decoration-none">
+              {{ unit.chassis_no }}
+            </a>
+          </td>
+          <td>{{ unit.model.name }}</td>
+          <td>{{ unit.lot|default:'—' }}</td>
+          <td>{{ unit.dealer.name|default:'—' }}</td>
+          <td>{{ unit.issue_count }}</td>
+          <td>
+            {% if unit.pending_count %}
+              <span class="badge badge-pending">{{ unit.pending_count }}</span>
             {% else %}
-              <span class="badge badge-closed">C</span>
+              0
             {% endif %}
           </td>
+          <td>
+            {% if unit.closed_count %}
+              <span class="badge badge-closed">{{ unit.closed_count }}</span>
+            {% else %}
+              0
+            {% endif %}
+          </td>
+          <td>{{ unit.latest_date|default:'—' }}</td>
           <td class="text-nowrap">
-            <a href="{% url 'redtag-detail' tag.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
-            <a href="{% url 'redtag-update' tag.pk %}" class="btn btn-sm btn-outline-dark">Edit</a>
+            <a href="{% url 'vehicle-detail' unit.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-muted">No matching red tags.</td></tr>
+        <tr><td colspan="9" class="text-muted">No units match these filters.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -110,4 +142,59 @@
   </nav>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+<script>
+  const PLACEHOLDER = 'Select an option';
+
+  function enhanceSelect(selectEl) {
+    if (!selectEl) return null;
+    if (selectEl.tomselect) return selectEl.tomselect;
+
+    if (![...selectEl.options].some(opt => opt.value === '')) {
+      selectEl.insertBefore(new Option(PLACEHOLDER, '', true, true), selectEl.firstChild);
+    } else {
+      const blank = [...selectEl.options].find(opt => opt.value === '');
+      if (blank) blank.textContent = PLACEHOLDER;
+    }
+
+    const selectedReal = [...selectEl.options].find(opt => opt.selected && opt.value !== '');
+    if (!selectedReal) {
+      selectEl.value = '';
+    }
+
+    return new TomSelect(selectEl, {
+      create: false,
+      maxOptions: null,
+      sortField: { field: 'text', direction: 'asc' },
+      placeholder: PLACEHOLDER,
+      allowEmptyOption: true,
+      hideSelected: false,
+      searchField: ['text'],
+      render: {
+        option: function(data, escape) {
+          if (data.value === '') {
+            return '<div class="option" style="display:none"></div>';
+          }
+          return '<div class="option">' + escape(data.text) + '</div>';
+        },
+        item: function(data, escape) {
+          if (data.value === '') {
+            return '<div class="item" style="color:#9ca3af;">' + escape(PLACEHOLDER) + '</div>';
+          }
+          return '<div class="item">' + escape(data.text) + '</div>';
+        },
+        no_results: function() {
+          return '<div class="no-results">No matches</div>';
+        },
+      },
+    });
+  }
+
+  enhanceSelect(document.getElementById('id_status'));
+  enhanceSelect(document.getElementById('id_section'));
+  enhanceSelect(document.getElementById('id_model'));
+</script>
 {% endblock %}

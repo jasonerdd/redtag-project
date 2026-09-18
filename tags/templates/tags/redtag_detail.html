@@ -15,7 +15,7 @@
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'redtag-update' redtag.pk %}" class="btn btn-dark">Edit</a>
-    <a href="{% url 'redtag-list' %}" class="btn btn-outline-secondary">Back to list</a>
+    <a href="{% url 'vehicle-detail' redtag.vehicle_id %}" class="btn btn-outline-secondary">Back to unit</a>
   </div>
 </div>
 
@@ -27,15 +27,10 @@
         <dt class="col-sm-4">Date raised</dt><dd class="col-sm-8">{{ redtag.date_raised }}</dd>
         <dt class="col-sm-4">Section</dt><dd class="col-sm-8">{{ redtag.section.code }}</dd>
         <dt class="col-sm-4">Station</dt><dd class="col-sm-8">{{ redtag.station.name|default:'—' }}</dd>
-        <dt class="col-sm-4">Location</dt><dd class="col-sm-8">{{ redtag.get_location_display|default:redtag.location|default:'—' }}</dd>
-        <dt class="col-sm-4">Part number</dt><dd class="col-sm-8">{{ redtag.part_number|default:'—' }}</dd>
-        <dt class="col-sm-4">Part name</dt><dd class="col-sm-8">{{ redtag.part_name|default:'—' }}</dd>
         <dt class="col-sm-4">Quantity</dt><dd class="col-sm-8">{{ redtag.quantity|default:'—' }}</dd>
         <dt class="col-sm-4">Description</dt><dd class="col-sm-8">{{ redtag.issue_description }}</dd>
         <dt class="col-sm-4">Category</dt><dd class="col-sm-8">{{ redtag.category.name|default:'—' }}</dd>
         <dt class="col-sm-4">Issue type</dt><dd class="col-sm-8">{{ redtag.issue_type.name|default:'—' }}</dd>
-        <dt class="col-sm-4">Reason code</dt><dd class="col-sm-8">{{ redtag.reason_code|default:'—' }}</dd>
-        <dt class="col-sm-4">Action</dt><dd class="col-sm-8">{{ redtag.action_taken|default:'—' }}</dd>
         <dt class="col-sm-4">Remarks</dt><dd class="col-sm-8">{{ redtag.remarks|default:'—' }}</dd>
       </dl>
     </div>
@@ -47,7 +42,6 @@
         <dt class="col-sm-4">Model</dt><dd class="col-sm-8">{{ redtag.vehicle.model.name }}</dd>
         <dt class="col-sm-4">Dealer</dt><dd class="col-sm-8">{{ redtag.vehicle.dealer.name|default:'—' }}</dd>
         <dt class="col-sm-4">Lot</dt><dd class="col-sm-8">{{ redtag.vehicle.lot|default:'—' }}</dd>
-        <dt class="col-sm-4">VIN size</dt><dd class="col-sm-8">{{ redtag.vehicle.vi_size|default:'—' }}</dd>
       </dl>
     </div>
   </div>

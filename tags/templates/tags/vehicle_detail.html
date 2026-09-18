@@ -1,0 +1,66 @@
+{% extends 'tags/base.html' %}
+{% block title %}Unit {{ unit.chassis_no }} · Red Tag System{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+  <div>
+    <h1 class="page-title">Chassis No: {{ unit.chassis_no }} | Model: {{ unit.model.name }} | Lot: {{ unit.lot }}</h1>
+    <p class="page-sub mb-0">
+      
+      {% if unit.dealer %} · {{ unit.dealer.name }}{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'redtag-create' %}" class="btn btn-danger">New Red Tag</a>
+    <a href="{% url 'redtag-list' %}" class="btn btn-outline-secondary">Back to history</a>
+  </div>
+</div>
+
+<div class="panel">
+  <h2 class="h6 text-uppercase text-muted mb-3">Issues for this unit ({{ redtags|length }})</h2>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Section</th>
+          <th>Station</th>
+          <th>Category</th>
+          <th>Issue type</th>
+          <th>Issue</th>
+          <th>Qty</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tag in redtags %}
+        <tr>
+          <td>{{ tag.id }}</td>
+          <td>{{ tag.date_raised }}</td>
+          <td>{{ tag.section.code }}</td>
+          <td>{{ tag.station.name|default:'—' }}</td>
+          <td>{{ tag.category.name|default:'—' }}</td>
+          <td>{{ tag.issue_type.name|default:'—' }}</td>
+          <td>{{ tag.issue_description|truncatechars:60 }}</td>
+          <td>{{ tag.quantity|default:'—' }}</td>
+          <td>
+            {% if tag.status == 'P' %}
+              <span class="badge badge-pending">P</span>
+            {% else %}
+              <span class="badge badge-closed">C</span>
+            {% endif %}
+          </td>
+          <td class="text-nowrap">
+            <a href="{% url 'redtag-detail' tag.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+            <a href="{% url 'redtag-update' tag.pk %}" class="btn btn-sm btn-outline-dark">Edit</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="10" class="text-muted">No issues recorded for this unit.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

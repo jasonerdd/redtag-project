@@ -186,16 +186,18 @@ class RedTagForm(forms.ModelForm):
 
 class RedTagFilterForm(forms.Form):
     status = forms.ChoiceField(
-        choices=[('', 'All statuses')] + list(RedTag.STATUS_CHOICES),
+        choices=[('', 'Select an option')] + list(RedTag.STATUS_CHOICES),
         required=False,
     )
     section = forms.ModelChoiceField(
         queryset=Section.objects.filter(show_in_form=True),
         required=False,
-        empty_label='All sections',
+        empty_label='Select an option',
     )
     model = forms.ModelChoiceField(
-        queryset=VehicleModel.objects.all(), required=False, empty_label='All models'
+        queryset=VehicleModel.objects.all(),
+        required=False,
+        empty_label='Select an option',
     )
     chassis = forms.CharField(required=False, label='Chassis No.')
     date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))

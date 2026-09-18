@@ -188,3 +188,41 @@ class RedTag(TimeStampedModel):
 
     def is_closed(self):
         return self.status == self.STATUS_CLOSED
+
+
+class AuditLog(models.Model):
+    ACTION_CREATED = 'CREATED'
+    ACTION_UPDATED = 'UPDATED'
+    ACTION_CLOSED = 'CLOSED'
+    ACTION_CHOICES = [
+        (ACTION_CREATED, 'Created'),
+        (ACTION_UPDATED, 'Updated'),
+        (ACTION_CLOSED, 'Closed'),
+    ]
+
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    user = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='audit_logs',
+    )
+    username = models.CharField(max_length=150, blank=True)
+    red_tag = models.ForeignKey(
+        RedTag, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='audit_logs',
+    )
+    red_tag_id_snapshot = models.PositiveIntegerField(null=True, blank=True)
+    chassis_no = models.CharField(max_length=50, blank=True, db_index=True)
+    summary = models.TextField(blank=True)
+    details = models.JSONField(default=dict, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-timestamp', '-id']
+        indexes = [
+            models.Index(fields=['action']),
+            models.Index(fields=['timestamp']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_action_display()} · tag #{self.red_tag_id_snapshot} · {self.timestamp:%Y-%m-%d %H:%M}"

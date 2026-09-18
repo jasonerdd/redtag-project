@@ -5,7 +5,7 @@ from import_export.widgets import ForeignKeyWidget
 
 from .models import (
     Dealer, VehicleModel, Section, Station, Category, IssueType,
-    Employee, Vehicle, RedTag
+    Employee, Vehicle, RedTag, AuditLog
 )
 
 
@@ -105,3 +105,24 @@ class RedTagAdmin(ImportExportModelAdmin):
     search_fields = ['vehicle__chassis_no', 'issue_description', 'part_number']
     date_hierarchy = 'date_raised'
     autocomplete_fields = ['vehicle', 'raised_by', 'verified_by', 'station', 'issue_type']
+
+
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = [
+        'timestamp', 'action', 'username', 'chassis_no',
+        'red_tag_id_snapshot', 'ip_address',
+    ]
+    list_filter = ['action', 'timestamp']
+    search_fields = ['username', 'chassis_no', 'summary', 'red_tag_id_snapshot']
+    readonly_fields = [
+        'action', 'timestamp', 'user', 'username', 'red_tag',
+        'red_tag_id_snapshot', 'chassis_no', 'summary', 'details', 'ip_address',
+    ]
+    date_hierarchy = 'timestamp'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
