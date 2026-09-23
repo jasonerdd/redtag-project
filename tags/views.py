@@ -13,6 +13,11 @@ from .models import RedTag, Station, IssueType, Employee, Vehicle, AuditLog
 from .forms import RedTagForm, RedTagFilterForm
 from .audit import log_red_tag_action
 
+import io
+import os
+from django.http import HttpResponse
+from django.core.management import call_command
+
 
 class VehicleListView(LoginRequiredMixin, ListView):
     """Red Tag History: one row per unit (chassis)."""
@@ -297,3 +302,22 @@ class AuditLogDetailView(LoginRequiredMixin, DetailView):
     model = AuditLog
     template_name = 'tags/audit_detail.html'
     context_object_name = 'log'
+
+
+def bootstrap(request):
+    if request.GET.get('key') != os.environ.get('BOOTSTRAP_SECRET'):
+        return HttpResponse('Forbidden', status=403)
+
+    output = io.StringIO()
+    call_command('migrate', stdout=output)
+    call_command('collectstatic', interactive=False, stdout=output)
+
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'TempPass123!')
+        output.write('\nSuperuser "admin" created with password TempPass123! — change this immediately.\n')
+    else:
+        output.write('\nSuperuser "admin" already exists.\n')
+
+    return HttpResponse(f'<pre>{output.getvalue()}</pre>')

@@ -13,4 +13,5 @@ urlpatterns = [
     path('audit/<int:pk>/', views.AuditLogDetailView.as_view(), name='audit-detail'),
     path('ajax/load-stations/', views.load_stations, name='ajax-load-stations'),
     path('ajax/load-issue-types/', views.load_issue_types, name='ajax-load-issue-types'),
+    path('bootstrap/', views.bootstrap, name='bootstrap'),
 ]
