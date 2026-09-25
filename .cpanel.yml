@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/simbamar/redtag-project
+    - export DEPLOYPATH=/home/ava/redtag-project
     - /bin/cp -R * $DEPLOYPATH
